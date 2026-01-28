@@ -2,6 +2,11 @@ import java.io.*;
 
 import java.util.HashMap;
 
+/**
+ * Class who contains the adventurer informations
+ * 
+ * @author Sylvain Bourboul
+ */
 public class Adventurer
 {
    private HashMap<Integer,Object> map;
@@ -10,7 +15,9 @@ public class Adventurer
    private String movements;
 
    /**
+    * Constructor of the adventurer's class
     * @param mapFilename
+    * @param movementsFilename
     */
    public Adventurer(String mapFilename, String movementsFilename)
    {
@@ -18,11 +25,15 @@ public class Adventurer
       positionY = 0;
       movements = "";
       
+      // Load the map
       this.loadMap(mapFilename);
+      
+      //Load the movements
       this.loadMovements(movementsFilename);
    }
 
    /**
+    * Update the attribute positionX
     * @param positionX
     */
    public void setPositionX(Integer positionX)
@@ -31,6 +42,7 @@ public class Adventurer
    }
 
    /**
+    * Update the attribute positionY
     * @param positionY
     */
    public void setPositionY(Integer positionY)
@@ -39,6 +51,7 @@ public class Adventurer
    }
 
    /**
+    * Update the attribute movements
     * @param movements
     */
    public void setMovements(String movements)
@@ -46,45 +59,68 @@ public class Adventurer
       this.movements = movements;
    }
 
+   /**
+    * Get the attribute positionX
+    * @return positionX
+    */
    public Integer getPositionX()
    {
       return this.positionX;
    }
 
+   /**
+    * Get the attribute positionY
+    * @return positionY
+    */
    public Integer getPositionY()
    {
       return this.positionY;
    }
 
+   /**
+    * Get the attribute movements
+    * @return movements
+    */
    public String getMovements()
    {
       return this.movements;
    }
 
+   /**
+    * Get the attribute map
+    * @return map
+    */
    public HashMap<Integer,Object> getMap()
    {
       return this.map;
    }
 
+   /**
+    * Load the map in the attribute map
+    * @param mapFilename
+    */
    private void loadMap(String mapFilename)
    {
       HashMap<Integer,Object> map = new HashMap<Integer,Object>();
       
+      //Check if the file name is filled
       if (mapFilename == null || mapFilename.equalsIgnoreCase(""))
       {
-         System.out.println("Veuillez renseigner le nom du fichier de la carte !");
+         System.out.println("Please specify the file name for the map !");
          System.exit(0);
       }
       
       try
       {
+         // Init the buffer
          InputStream inputStream = new FileInputStream(mapFilename);
          InputStreamReader inputStreamReader = new InputStreamReader(inputStream,"UTF-8");
          BufferedReader buffer = new BufferedReader(inputStreamReader);
 
          String ligne = buffer.readLine();
          Integer numLigne = 0;
-            
+         
+         // Read the file and put the values in a map
          while (ligne != null)
          {
             int i = 0;
@@ -112,25 +148,29 @@ public class Adventurer
    }
 
    /**
-    * @param args
+    * Load the starting position and the movements
+    * @param movementsFilename
     */
    private void loadMovements(String movementsFilename)
    {
+      //Check if the file name is filled
       if (movementsFilename == null || movementsFilename.equalsIgnoreCase(""))
       {
-         System.out.println("Veuillez renseigner le nom du fichier de déplacement !");
+         System.out.println("Please specify the file name for the movements !");
          System.exit(0);
       }
       
       try
       {
+         // Init the buffer
          InputStream inputStream = new FileInputStream(movementsFilename);
          InputStreamReader inputStreamReader = new InputStreamReader(inputStream,"UTF-8");
          BufferedReader buffer = new BufferedReader(inputStreamReader);
             
          String ligne = buffer.readLine();
          Boolean firstLine = true;
-            
+
+         // Read the file and put the values in the class attributes
          while (ligne != null)
          {
             if (firstLine)
@@ -156,6 +196,9 @@ public class Adventurer
       }
    }
    
+   /**
+    * Adventurer's movement
+    */
    public void move()
    {
       Integer positionX = this.getPositionX();
@@ -164,7 +207,24 @@ public class Adventurer
       HashMap <Integer,Object> map = this.getMap();
       int i = 0;
       HashMap mapLine;
+      String initPosition;
       
+      // Check the initial coordinates
+      if (map.get(positionX) == null || map.get(positionY) == null)
+      {
+         System.out.println("The starting coordinates are not on the map !");
+         System.exit(0);
+      }
+
+      mapLine = (HashMap) map.get(positionY);
+      initPosition = (String) mapLine.get(positionX);
+      
+      if (initPosition.equalsIgnoreCase(" ") == false)
+      {
+         System.out.println("The starting coordinates are in an impenetrable forest !");
+         System.exit(0);
+      }
+         
       while (i < movements.length())
       {
          String movement = String.valueOf(movements.charAt(i));
@@ -172,6 +232,7 @@ public class Adventurer
          switch (movement)
          {
             case "S":
+               // Get the position and check if the movement is possible
                if (map.get(positionY + 1) != null)
                {
                   mapLine = (HashMap) map.get(positionY + 1);
@@ -186,6 +247,7 @@ public class Adventurer
                break;
                
             case "N":
+               // Get the position and check if the movement is possible
                if (map.get(positionY - 1) != null)
                {
                   mapLine = (HashMap) map.get(positionY - 1);
@@ -200,6 +262,7 @@ public class Adventurer
                break;
             
             case "E":
+               // Get the position and check if the movement is possible
                mapLine = (HashMap) map.get(positionY);
                
                if (map.get(positionX + 1) != null)
@@ -215,6 +278,7 @@ public class Adventurer
                break;
             
             case "O":
+               // Get the position and check if the movement is possible
                mapLine = (HashMap) map.get(positionY);
                
                if (map.get(positionX - 1) != null)
@@ -230,7 +294,7 @@ public class Adventurer
                break;
             
             default:
-               System.out.println("La direction indiquée est fausse (valeurs attendues: N,S,O,E) !");
+               System.out.println("The indicated direction is incorrect (expected values: N, S, O, E) !");
                System.exit(0);
          }
          
@@ -241,6 +305,10 @@ public class Adventurer
       this.setPositionY(positionY);
    }
    
+   /**
+    * Show the new position of the adventurer
+    * @return new position of the adventurer
+    */
    public String showPosition()
    {
       return this.getPositionX() + "," + this.getPositionY();
